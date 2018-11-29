@@ -2,7 +2,6 @@
 
 import sys
 import numpy as np
-import Number_Package as npkg
 # import Nonce_Class as Nonce
 
 class Package(object):
@@ -119,6 +118,17 @@ class COM_ERR(COM_PKG, ERR_PKG):
         r = super().gen()
         r["ERR_CODE"] = self.ERR_CODE_
         return r
+
+class COM_MSG(COM_PKG):
+    def __init__(self):
+        super().__init__("COM_MSG")
+
+    def set_PAYLOAD(self, PAYLOAD):
+        self.PAYLOAD_ = PAYLOAD
+
+    def gen(self):
+        r = super().gen()
+        r["PAYLOAD"] = self.PAYLOAD_
 
 class KEY_ERR(KEY_PKG, ERR_PKG):
     def __init__(self):
