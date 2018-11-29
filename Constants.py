@@ -54,7 +54,7 @@ PKG_STRUCT_DICT={
 "DISCON_REQ": "{PKG_TYPE_ID}||{NONCE}||{HMAC}",
 "DISCON_CLG": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{CHALLG}",
 "DISCON_RPY": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{CHALLG_RPY}",
-"DISCON_ERR": "{PKG_TYPE_ID}||{NONCE}||{HMAC}",
+"DISCON_ERR": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{ERR_CODE}",
 "Nonce": "{time}" # subject to changes
 }
 
