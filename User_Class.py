@@ -98,9 +98,12 @@ class User(object):
         Rst: True/False
         ErrorCode: None or ErrorCode
     """
-    def nonce_check(self, nonce, rules):
-
-        return True, ErrorCode
+    def nonce_check(self, nonce):
+        now = time.time()
+        if now - float(nonce) > Constants.PKG_TOL:
+            return False, Constants.ERROR_CODE_DICT("EXPIRED_PKG")
+        else:
+            return True, None
 
     """
     respond_state_machine()

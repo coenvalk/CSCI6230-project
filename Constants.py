@@ -85,7 +85,9 @@ MSG_MAX_LENGTH = CTRL_INFO_MAX_LENGTH+PAYLOAD_MAX_LENGTH  # maximum length of th
 PUNISH_COOLDOWN_TIME = 6   # time to block the ip (sec)
 SCORE_TO_PUNISH = 10       # when a user reaches 10 points, punish him
 
-USER_ID_MAX = 10000         # user id is in range 1 to 9999
+USER_ID_MAX = 10000        # user id is in range 1 to 9999
+PKG_TOL = 30               # time of life for a package
+CERT_TOL = 600             # validation period for certification
 
 DELIMITER="||"
 
