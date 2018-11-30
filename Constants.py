@@ -87,6 +87,8 @@ SCORE_TO_PUNISH = 10       # when a user reaches 10 points, punish him
 
 USER_ID_MAX = 10000         # user id is in range 1 to 9999
 
+DELIMITER="||"
+
 # regularization express quick reference
 # "^.{3}$ " : length is exactly 3
 # "[0-9]{1,6}" : digits of length 1~6
