@@ -70,6 +70,21 @@ def find_prime_smaller_than_k(k):
             return num
     return 1
 
+def find_prime_greater_than_k(k, n_ignore=0):
+    if k < 1:
+        raise ValueError("k should be greater than 2")
+    if k %2 == 0:
+        k -= 1
+    counter = 0
+    while True:
+        if is_prime(k):
+            if counter >= n_ignore:
+                return k
+            else:
+                counter += 1
+        k += 2
+    return 1
+
 def eular_totient_function(k):
     if k < 0:
         return None
