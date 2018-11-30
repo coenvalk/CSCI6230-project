@@ -109,3 +109,11 @@ class BG(object):
             m_dec += mi_bin
 
         return m_dec
+
+    def random_private_key(self):
+        # should have p, q blum integer primes, and random seed x:
+        i = np.random.randint(1000)
+        j = np.random.randint(1000)
+        p, q, N = npkg.blum_interger_generator(2**64, i, j)
+        x0 = np.random.randint(2**64)
+        return p, q, x0

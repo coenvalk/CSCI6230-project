@@ -58,3 +58,16 @@ class RSA(object):
     def gen_shared_key(self, cipher_key):
         cipher_key = int(cipher_key)
         return self.exp_mod(self.pv_key, cipher_key, self.q)
+
+    def random_private_key(self):
+        i = np.random.randint(1000)
+        i = np.random.randint(1000)
+        p = npkg.random_prime_below_k(2**128, i)
+        q = npkg.random_prime_below_k(2**128, j)
+
+        e = 0
+        while e % p == 0 and e % q == 0:
+            e = np.random.randint(p * q)
+
+        d = mult_inv_mod_N(e, (p - 1) * (q - 1))
+        return p, q, d

@@ -123,3 +123,9 @@ class ECC(object):
 
     def minus(self, p1, p2):
         return self.add(p1, [p2[0], -p2[1]])
+
+    def random_private_key(self):
+        a = np.random.randint(self.N)
+        b = np.random.randint(self.N)
+
+        return [a, b]

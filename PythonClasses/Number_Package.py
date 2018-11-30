@@ -59,15 +59,19 @@ def mult_inv_mod_N(a, N):
         # print('1=', Aa[0], '*', N_org, '+', Aa[1], '*', a_org)
         return Aa[1] % N_org
 
-def find_prime_smaller_than_k(k):
+def find_prime_smaller_than_k(k, n_ignore=0):
     if k < 1:
         print('Please input a positive integer greater than 1')
         return None
     if k %2 == 0:
         k -= 1
-    for num in range(k, 0, -2): # get rid of even numbers
+    while k > 0: # get rid of even numbers
         if is_prime(num):
-            return num
+            if counter >= n_ignore:
+                return k
+            else:
+                counter += 1
+        k -= 2
     return 1
 
 def find_prime_greater_than_k(k, n_ignore=0):
