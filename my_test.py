@@ -14,3 +14,26 @@ user_info_db.add_user(user_id=999, ip="192.168.31.128")
 print(user_info_db.check_ip("192.168.31.128"))
 print(user_info_db.check_ip("192.168.31.31"))
 print(user_info_db.check_ip("192.168.31.131")) # new ip
+
+
+
+from PythonClasses.SHA1_Class import SHA1
+import hashlib
+
+m = "abc"
+S = SHA1()
+hashed = S.hash(m.encode())
+print(hashed)
+
+hashlib_rst = hashlib.sha1(m.encode()).hexdigest()
+print(hashed)
+
+
+from PythonClasses.HMAC_Class import HMAC
+import hmac
+
+m, k = "123", "oqwiejrhaskdf"
+
+print(HMAC(m=m, k=k))
+
+print(hmac.new(k.encode('utf-8'), m.encode('utf-8'), hashlib.sha1).hexdigest())
