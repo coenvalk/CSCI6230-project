@@ -30,6 +30,7 @@ class User(object):
         # self.PKG_INFO_ITEMS = Constants.PKG_INFO_ITEMS              # list of items in the package
         self.user_state = -1
         self.User_Info_DB = User_Info_DB()              # an object storing (userid: User_info )
+        self.delimiter = Constants.DELIMITER            #
 
     """
     pkg_gen()
@@ -42,7 +43,7 @@ class User(object):
     outputs:
         pkg_msg_lst: a list of strings to be sent (even if usually there is only one object in the list)
     """
-    def pkg_gen(self, packet_info):
+    def pkg_gen(self, pkg_info):
         pkg_msg_lst = [""]
 
         return pkg_msg_lst
@@ -72,8 +73,7 @@ class User(object):
         pkg_info: the dictionary
     """
     def pkg_info_init_gen(self):
-        pkg_info = {key:None for key in Constants.PKG_INFO_ITEMS}
-
+        return {key:None for key in Constants.PKG_INFO_ITEMS}
 
     """
     nonce_gen()
