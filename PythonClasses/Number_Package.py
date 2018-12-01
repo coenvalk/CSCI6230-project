@@ -2,6 +2,8 @@
 import numpy as np
 
 def is_prime(t):
+    if t == 2 or t == 3:
+        return True
     if t < 1 or t % 2 == 0 or t % 3 == 0:  # remove some easy cases
         return False
     # prime_flag = True
@@ -65,8 +67,9 @@ def find_prime_smaller_than_k(k, n_ignore=0):
         return None
     if k %2 == 0:
         k -= 1
+    counter = 0
     while k > 0: # get rid of even numbers
-        if is_prime(num):
+        if is_prime(k):
             if counter >= n_ignore:
                 return k
             else:

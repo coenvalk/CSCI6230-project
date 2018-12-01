@@ -39,3 +39,10 @@ print(HMAC(m=m, k=k))
 print(hmac.new(k.encode('utf-8'), m.encode('utf-8'), hashlib.sha1).hexdigest())
 
 print(m)
+
+
+import PythonClasses.Number_Package as npkg
+from PythonClasses.RSA_Class import RSA
+import numpy as np
+p, q, N, e, d = RSA().random_private_key()
+print(p, q, N, e, d)

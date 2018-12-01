@@ -28,6 +28,8 @@ class User(object):
             print("user_id is set to be ", self.user_id)
         self.PKC_obj = None                     # chosen from RSA, ECC and BG
         self.SymmEnc_obj = None                 # currently, DES only
+        self.private_key = -1                   # private key for signature
+        self.public_key = -1                    # public key for check
         # self.PKG_TYPE_ID_DICT = Constants.PKG_TYPE_ID_DICT  # Package id - package funcionality
         # self.PKG_INFO_ITEMS = Constants.PKG_STRUCT_DICT             # structure of each type of package
         # self.ERROR_CODES = Constants.ERROR_CODE_DICT        # ErrorCode - description
@@ -347,6 +349,9 @@ class User(object):
             return False, Constants.ERROR_CODE_DICT("EXPIRED_PKG")
         else:
             return True, None
+
+    def gen_pub_prv_keys(self):
+        pass
 
     """
     respond_state_machine()

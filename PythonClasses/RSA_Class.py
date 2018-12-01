@@ -5,7 +5,7 @@ import PythonClasses.Number_Package as npkg
 
 class RSA(object):
     """docstring for RSA."""
-    def __init__(self, q=-1, alpha=-1, k=1000):
+    def __init__(self, q=3, alpha=5, k=1000):
         super(RSA, self).__init__()
         self.q = -1
         self.alpha = -1
@@ -60,14 +60,15 @@ class RSA(object):
         return self.exp_mod(self.pv_key, cipher_key, self.q)
 
     def random_private_key(self):
-        i = np.random.randint(1000)
-        i = np.random.randint(1000)
-        p = npkg.random_prime_below_k(2**128, i)
-        q = npkg.random_prime_below_k(2**128, j)
+        base = np.random.randint(2**10)
+        p = npkg.find_prime_smaller_than_k(2**31 - base)
+        q = npkg.find_prime_greater_than_k(2**31 + base)
 
-        e = 0
-        while e % p == 0 and e % q == 0:
-            e = np.random.randint(p * q)
+        N = p*q
+        phi = (p-1) * (q-1)
+        e = np.random.randint(phi//2, phi, dtype=np.int64)
+        while np.gcd(e, phi) != 1:
+            e = np.random.randint(phi//2, phi, dtype=np.int64)
 
-        d = mult_inv_mod_N(e, (p - 1) * (q - 1))
-        return p, q, d
+        d = npkg.mult_inv_mod_N(e, phi)
+        return p, q, N, e, d
