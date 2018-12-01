@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from PythonClasses.User_Info_DB_Class import User_Info_DB
-import Constants
+import PythonClasses.Constants
 import time
 
 user_info_db = User_Info_DB()
@@ -44,5 +44,5 @@ print(m)
 import PythonClasses.Number_Package as npkg
 from PythonClasses.RSA_Class import RSA
 import numpy as np
-p, q, N, e, d = RSA().random_private_key()
-print(p, q, N, e, d)
+rsa = RSA()
+print(rsa.get_public_key())

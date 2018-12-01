@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re
 import time
-import Constants
+import PythonClasses.Constants as Constants
 
 class User_info(object):
     """docstring for User_info."""
@@ -37,7 +37,7 @@ class User_info(object):
         if self.score >= Constants.SCORE_TO_PUNISH:
             # punish the user
             self.cooldown = time.time()
-            self.state = Constants.USERT_STATES["PUNISH"]
+            self.state = Constants.USER_STATES["PUNISH"]
             return False
         return True
 

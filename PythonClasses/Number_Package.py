@@ -59,8 +59,7 @@ def mult_inv_mod_N(a, N):
         # print('1=', AN[0], '*', N_org, '+', AN[1], '*', a_org)
         return AN[1] % N_org
     elif a == 1:
-        # print('1=', Aa[0],
-        '*', N_org, '+', Aa[1], '*', a_org)
+        # print('1=', Aa[0], '*', N_org, '+', Aa[1], '*', a_org)
         return Aa[1] % N_org
 
 
@@ -106,7 +105,7 @@ def random_prime_greater_than_k(k):
     r = np.random.randint(N)
 
     return find_prime_greater_than_k(k, r)
-    
+
 def eular_totient_function(k):
     if k < 0:
         return None

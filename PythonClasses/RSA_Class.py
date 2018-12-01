@@ -5,70 +5,51 @@ import PythonClasses.Number_Package as npkg
 
 class RSA(object):
     """docstring for RSA."""
-    def __init__(self, q=3, alpha=5, k=1000):
+    def __init__(self):
         super(RSA, self).__init__()
         self.q = -1
-        self.alpha = -1
-        self.set_q(q)
-        self.set_alpha(alpha)
-        self.pv_key = np.random.randint(k)
+        self.p = -1
+        self.N = -1
+        self.e = -1
+        self.d = -1
+        self.random_private_key()
 
-    def set_q(self, q):
-        if npkg.is_prime(q):
-            self.q = q
-        else:
-            print('q:', q, ' is not prime. Failed')
+    def update_N(self):
+        if self.p != -1 and self.q != -1:
+            self.N = self.p * self.q
 
-    def set_alpha(self, alpha):
-        if npkg.is_prime(alpha):
-            self.alpha = alpha
-        else:
-            print('alpha:', alpha, ' is not prime. Failed')
-
-    def set_pv_key(self, pv_key):
-        self.pv_key = pv_key
-
-    def change_pv_key(self, k=1000):
-        self.pv_key = np.random.randint(k)
-
-    def is_prime(self, t):
-        return npkg.is_prime(t)
-
-    def find_prime_smaller_than_k(self, k):
-        return npkg.find_prime_smaller_than_k(k)
-
-    def exp_mod(self, m, alpha, q):
-        m = int(m)
-
-        if npkg.is_prime(q):
-            m %= q - 1
-        return npkg.exp_mod(alpha, m, q)
-        # return alpha**m % q
-
-    def gen_pv_key(self):
-        if self.q == -1:
-            print('q is not initialized')
-            return
-        if self.alpha == -1:
-            print('alpha is not initialized')
-            return
-        self.change_pv_key(1000)
-        return self.exp_mod(self.pv_key, self.alpha, self.q)
-
-    def gen_shared_key(self, cipher_key):
-        cipher_key = int(cipher_key)
-        return self.exp_mod(self.pv_key, cipher_key, self.q)
-
-    def random_private_key(self):
-        base = np.random.randint(2**10)
-        p = npkg.find_prime_smaller_than_k(2**31 - base)
-        q = npkg.find_prime_greater_than_k(2**31 + base)
-
-        N = p*q
-        phi = (p-1) * (q-1)
+    def update_e_and_d(self):
+        phi = (self.p-1) * (self.q-1)
         e = np.random.randint(phi//2, phi, dtype=np.int64)
         while np.gcd(e, phi) != 1:
             e = np.random.randint(phi//2, phi, dtype=np.int64)
 
-        d = npkg.mult_inv_mod_N(e, phi)
-        return p, q, N, e, d
+        self.e = e
+        self.d = npkg.mult_inv_mod_N(e, phi)
+
+    def set_p(self, p):
+        if npkg.is_prime(p):
+            self.p = p
+            self.update_N()
+            self.update_e_and_d()
+        else:
+            print("p should be prime")
+
+    def set_q(self, q):
+        if npkg.is_prime(q):
+            self.q = q
+            self.update_N()
+            self.update_e_and_d()
+        else:
+            print("q should be prime")
+
+    def get_public_key(self):
+        return [self.N, self.e]
+
+    def random_private_key(self):
+        base = np.random.randint(2**10)
+        self.p = npkg.find_prime_smaller_than_k(2**31 - base)
+        self.q = npkg.find_prime_greater_than_k(2**31 + base)
+
+        self.N = self.p*self.q
+        self.update_e_and_d()
