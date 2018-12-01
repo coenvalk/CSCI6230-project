@@ -46,6 +46,21 @@ class RSA(object):
     def get_public_key(self):
         return [self.N, self.e]
 
+    def encrypt(self, m):
+        if m > self.N:
+            print("message is greater than N")
+            m %= self.N
+        return npkg.exp_mod(m, self.e, self.N)
+
+    def decrypt(self, c):
+        return npkg.exp_mod(c, self.d, self.N)
+
+    def sign(self, m): # sign the message
+        return npkg.exp_mod(m, self.d, self.N)
+
+    def de_sign(self, c): # use public key to decrypt the message
+        return npkg.exp_mod(c, self.e, self.N)
+
     def random_private_key(self):
         base = np.random.randint(2**10)
         self.p = npkg.find_prime_smaller_than_k(2**31 - base)
