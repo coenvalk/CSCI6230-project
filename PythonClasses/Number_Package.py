@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import math
 
 def is_prime(t):
     if t < 1 or t % 2 == 0 or t % 3 == 0:  # remove some easy cases
@@ -56,9 +57,24 @@ def mult_inv_mod_N(a, N):
         # print('1=', AN[0], '*', N_org, '+', AN[1], '*', a_org)
         return AN[1] % N_org
     elif a == 1:
-        # print('1=', Aa[0], '*', N_org, '+', Aa[1], '*', a_org)
+        # print('1=', Aa[0],
+        '*', N_org, '+', Aa[1], '*', a_org)
         return Aa[1] % N_org
 
+
+def random_prime_smaller_than_k(k):
+    N = N / math.log(N) # approximate number of primes below k
+    r = np.random.randint(N)
+
+    return find_prime_smaller_than_k(k, r)
+
+def random_prime_greater_than_k(k):
+    N = N / math.log(N)
+    r = np.random.randint(N)
+
+    return find_prime_greater_than_k(k, r)
+    
+    
 def find_prime_smaller_than_k(k, n_ignore=0):
     if k < 1:
         print('Please input a positive integer greater than 1')
