@@ -10,8 +10,9 @@ class User_info(object):
         self.user_id = -1
         self.ip = ""
         self.last_connect_time = time.time()
-        self.state = 0      # !=0 means under punishment, =0 means it's ok
+        self.state = Constants.USER_STATES["START"] # based on state machine constants defined
         self.score = 0
+        self.cooldown = None
 
         self.set_user_id(user_id)
         self.set_ip(ip)
@@ -35,16 +36,17 @@ class User_info(object):
             self.score += Constants.BAD_BEHAVIOR[behavior]
         if self.score >= Constants.SCORE_TO_PUNISH:
             # punish the user
-            self.state = time.time()
+            self.cooldown = time.time()
+            self.state = Constants.USERT_STATES["PUNISH"]
             return False
         return True
 
     def check_user(self):
-        if self.state == 0:
+        if not self.state == Constants.USER_STATES["PUNISH"]:
             return True     # clean title
         else:
-            if (time.time() - self.state) > Constants.PUNISH_COOLDOWN_TIME:
-                self.state = 0
+            if (time.time() - self.cooldown) > Constants.PUNISH_COOLDOWN_TIME:
+                self.state = Constants.USER_STATES["START"]
                 return True  # time to release
             else:
                 return False # in jail

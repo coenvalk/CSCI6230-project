@@ -78,6 +78,14 @@ PKG_STRUCT_DICT={
 PKG_INFO_ITEMS = ['PKG_TYPE_ID', 'PKG_DESC', 'SRC_ID', 'DST_ID', 'PUBLIC_KEY',
 'NEGO_PARAMS', 'HMAC', 'CERT', 'NONCE', 'ERR_CODE', 'KEY_INFO', 'PAYLOAD', 'CHALLG']
 
+USER_STATES = {
+    "START": 0,
+    "PUNISH": 3,
+    "SEND": 1,
+    "DISCONNECT": 2,
+    "ACCEPT": 4,
+}
+
 
 PAYLOAD_MAX_LENGTH = 1025  # maximum length of the payload
 CTRL_INFO_MAX_LENGTH = 256 # maximum length of the control information (including PKG_TYPE_ID, src_id, etc)
