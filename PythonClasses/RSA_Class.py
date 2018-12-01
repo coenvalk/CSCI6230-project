@@ -5,14 +5,19 @@ import PythonClasses.Number_Package as npkg
 
 class RSA(object):
     """docstring for RSA."""
-    def __init__(self):
+    def __init__(self, e=-1, N=-1):
         super(RSA, self).__init__()
         self.q = -1
         self.p = -1
         self.N = -1
         self.e = -1
         self.d = -1
-        self.random_private_key()
+
+        if N > 5 and e > 0 and e < N:
+            self.N = N
+            self.e = e
+        if self.N == -1 or self.e == -1:
+            self.random_private_key()
 
     def update_N(self):
         if self.p != -1 and self.q != -1:
@@ -56,10 +61,19 @@ class RSA(object):
         return npkg.exp_mod(c, self.d, self.N)
 
     def sign(self, m): # sign the message
+        if m > self.N:
+            # print("message is greater than N")
+            m %= self.N
         return npkg.exp_mod(m, self.d, self.N)
 
     def de_sign(self, c): # use public key to decrypt the message
         return npkg.exp_mod(c, self.e, self.N)
+
+    def check_sign(self, m, s):
+        if self.de_sign(m) == s:
+            return True
+        else:
+            return False
 
     def random_private_key(self):
         base = np.random.randint(2**10)

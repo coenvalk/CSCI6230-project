@@ -5,12 +5,14 @@ import PythonClasses.Number_Package as npkg
 from PythonClasses.DES_Class import DES
 
 from PythonClasses.Blum_Goldwessar_Class import BG
-from PythonClasses.ECC_Class import ECC
+# from PythonClasses.ECC_Class import ECC
 from PythonClasses.RSA_Class import RSA
 
 from PythonClasses.User_Info_DB_Class import User_Info_DB
 
-import Constants
+from PythonClasses.SHA1_Class import SHA1
+
+import PythonClasses.Constants as Constants
 import time
 import re
 
@@ -28,8 +30,10 @@ class User(object):
             print("user_id is set to be ", self.user_id)
         self.PKC_obj = None                     # chosen from RSA, ECC and BG
         self.SymmEnc_obj = None                 # currently, DES only
-        self.private_key = -1                   # private key for signature
-        self.public_key = -1                    # public key for check
+        self.sign_obj = RSA()
+        self.public_key = self.sign_obj.get_public_key()              # public key for check
+        self.cert = None
+        self.cert_update()
         # self.PKG_TYPE_ID_DICT = Constants.PKG_TYPE_ID_DICT  # Package id - package funcionality
         # self.PKG_INFO_ITEMS = Constants.PKG_STRUCT_DICT             # structure of each type of package
         # self.ERROR_CODES = Constants.ERROR_CODE_DICT        # ErrorCode - description
@@ -401,3 +405,50 @@ class User(object):
                 pass
         except Exception as e:
             raise
+
+    """
+    cert_update()
+    =====================
+    Generate/update the certification.
+    Certification is generated using
+    {USER_ID}|{cert generation time}|{signed hash value of previous two parts}
+
+    Certification will be updated if 1) expired 2) doesn't exist
+    """
+    def cert_update(self):
+        def cert_gen():
+            cur_time = str(time.time())
+
+            message = str(self.user_id) + '|' + cur_time
+            msg_hash = SHA1().hash(message.encode())[-8:]
+            sign = self.sign_obj.sign(int(msg_hash, 16))
+            self.cert = message + '|' + str(sign)
+        if self.cert is None:
+            cert_gen()
+            return
+        cert_gen_time = float(self.cert.split('|')[1])
+        if (time.time() - cert_gen_time) > Constants.CERT_TOL/2:
+            cert_gen()
+            return
+
+    def cert_check(self, cert, SRC_ID, N, e):
+        cert_check_obj = RSA(e=e, N=N)
+        cert_parts = self.cert.split('|')
+        if len(cert_parts) == 3:
+            try:
+                cert_SRC_ID = int(cert_parts[0])
+                cert_gen_time = float(cert_parts[1])
+                cert_sign = int(cert_parts[2])
+            except Exception as e:
+                return False
+
+            if cert_SRC_ID != SRC_ID: # user not match
+                return False
+            if (time.time() - cert_gen_time) > Constants.CERT_TOL: # expire
+                return False
+
+            message = cert_parts[0] + '|' + cert_parts[1]
+            msg_hash = SHA1().hash(message.encode())[-8:]
+            return cert_check_obj.check_sign(cert_sign, int(msg_hash, 16))
+        else:
+            return False

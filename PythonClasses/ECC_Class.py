@@ -125,7 +125,7 @@ class ECC(object):
         return self.add(p1, [p2[0], -p2[1]])
 
     def random_private_key(self):
+        self.N = np.random.randint(2**9, 2**10)
         a = np.random.randint(self.N)
         b = np.random.randint(self.N)
-
-        return [a, b]
+        self.set_poly_coeff((a, b))
