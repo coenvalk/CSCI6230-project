@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import math
 
 def is_prime(t):
     if t == 2 or t == 3:
@@ -58,8 +59,10 @@ def mult_inv_mod_N(a, N):
         # print('1=', AN[0], '*', N_org, '+', AN[1], '*', a_org)
         return AN[1] % N_org
     elif a == 1:
-        # print('1=', Aa[0], '*', N_org, '+', Aa[1], '*', a_org)
+        # print('1=', Aa[0],
+        '*', N_org, '+', Aa[1], '*', a_org)
         return Aa[1] % N_org
+
 
 def find_prime_smaller_than_k(k, n_ignore=0):
     if k < 1:
@@ -92,6 +95,18 @@ def find_prime_greater_than_k(k, n_ignore=0):
         k += 2
     return 1
 
+def random_prime_below_k(k):
+    N = N / math.log(N) # approximate number of primes below k
+    r = np.random.randint(N)
+
+    return find_prime_smaller_than_k(k, r)
+
+def random_prime_greater_than_k(k):
+    N = N / math.log(N)
+    r = np.random.randint(N)
+
+    return find_prime_greater_than_k(k, r)
+    
 def eular_totient_function(k):
     if k < 0:
         return None
