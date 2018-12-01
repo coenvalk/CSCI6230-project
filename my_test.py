@@ -37,3 +37,5 @@ m, k = "123", "oqwiejrhaskdf"
 print(HMAC(m=m, k=k))
 
 print(hmac.new(k.encode('utf-8'), m.encode('utf-8'), hashlib.sha1).hexdigest())
+
+print(m)

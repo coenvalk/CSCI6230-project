@@ -19,10 +19,10 @@ import numpy as np
 
 class User(object):
     """docstring for User."""
-    def __init__(self, userid=-1):
+    def __init__(self, user_id=-1):
         # super(User, self).__init__()
-        if userid > 1 and userid < Constants.USER_ID_MAX:
-            self.user_id = userid
+        if user_id > 1 and user_id < Constants.USER_ID_MAX:
+            self.user_id = user_id
         else:
             self.user_id = np.random.randint(1, Constants.USER_ID_MAX)
             print("user_id is set to be ", self.user_id)
@@ -51,161 +51,164 @@ class User(object):
     """
     def pkg_gen(self, pkg_info):
         PKG_TYPE_ID = pkg_info["PKG_TYPE_ID"]
-        PKG_DESC = pkg_info["PKG_DESC"]
+        PKG_DESC = Constants.PKG_TYPE_ID_DICT.inverse[PKG_TYPE_ID][0]
+        print(PKG_DESC)
         if PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["HELLO_MSG"]:
             # pkg_info["PKG_DESC"] = "HELLO_MSG"
             # pkg_info["SRC_ID"] = pkg_msg_list[2]
             # pkg_info["NEGO_PARAMS"] = Constants.DELIMITER.join(pkg_msg_list[3:])
 
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            SRC_ID=self.user_id,
-            NEGO_PARAMS=pkg_info["NEGO_PARAMS"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            SRC_ID=pkg_info["SRC_ID"],\
+            PUBLIC_KEY=pkg_info["PUBLIC_KEY"],\
+            NEGO_PARAMS=pkg_info["NEGO_PARAMS"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["ACK_CERT"]:
             # pkg_info["PKG_DESC"] = "ACK_CERT"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["DST_ID"] = pkg_msg_list[3]
             # pkg_info["CERT"] = Constants.DELIMITER.join(pkg_msg_list[4:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            DST_ID=pkg_info["DST_ID"],
-            CERT=pkg_info["CERT"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            DST_ID=pkg_info["DST_ID"],\
+            PUBLIC_KEY=pkg_info["PUBLIC_KEY"],\
+            CERT=pkg_info["CERT"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DNY_MSG"]:
             # pkg_info["PKG_DESC"] = "DNY_MSG"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            ERR_CODE=pkg_info["ERR_CODE"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_REQ"]:
             # pkg_info["PKG_DESC"] = "CERT_REQ"
             # pkg_info["HMAC"] = pkg_msg_list[2]
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_RPY"]:
             # pkg_info["PKG_DESC"] = "CERT_RPY"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["CERT"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            CERT=pkg_info["CERT"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            CERT=pkg_info["CERT"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_ERR"]:
             # pkg_info["PKG_DESC"] = "CERT_ERR"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            ERR_CODE=pkg_info["ERR_CODE"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_REQ"]:
             # pkg_info["PKG_DESC"] = "KEY_REQ"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["KEY_INFO"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            KEY_INFO=pkg_info["KEY_INFO"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            KEY_INFO=pkg_info["KEY_INFO"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_RPY"]:
             # pkg_info["PKG_DESC"] = "KEY_RPY"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["KEY_INFO"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            KEY_INFO=pkg_info["KEY_INFO"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            KEY_INFO=pkg_info["KEY_INFO"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_ERR"]:
             # pkg_info["PKG_DESC"] = "KEY_ERR"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            ERR_CODE=pkg_info["ERR_CODE"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["COM_MSG"]:
             # pkg_info["PKG_DESC"] = "COM_MSG"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["PAYLOAD"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            PAYLOAD=pkg_info["PAYLOAD"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            PAYLOAD=pkg_info["PAYLOAD"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["COM_ERR"]:
             # pkg_info["PKG_DESC"] = "COM_ERR"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            ERR_CODE=pkg_info["ERR_CODE"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_REQ"]:
             # pkg_info["PKG_DESC"] = "DISCON_REQ"
             # pkg_info["HMAC"] = pkg_msg_list[2]
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_CLG"]:
             # pkg_info["PKG_DESC"] = "DISCON_CLG"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["CHALLG"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            CHALLG=pkg_info["CHALLG"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            CHALLG=pkg_info["CHALLG"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_RPY"]:
             # pkg_info["PKG_DESC"] = "DISCON_RPY"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["CHALLG_RPY"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            CHALLG_RPY=pkg_info["CHALLG_RPY"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            CHALLG_RPY=pkg_info["CHALLG_RPY"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_ERR"]:
             # pkg_info["PKG_DESC"] = "DISCON_ERR"
             # pkg_info["HMAC"] = pkg_msg_list[2]
             # pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
-            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(
-            PKG_TYPE_ID=PKG_TYPE_ID,
-            NONCE=self.nonce_gen(),
-            HMAC=pkg_info["HMAC"],
-            ERR_CODE=pkg_info["ERR_CODE"]
+            msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
+            PKG_TYPE_ID=PKG_TYPE_ID,\
+            NONCE=pkg_info["NONCE"],\
+            HMAC=pkg_info["HMAC"],\
+            ERR_CODE=pkg_info["ERR_CODE"]\
             )
         else: # package type not support
             raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
 
 
-        return pkg_msg_lst
+        return msg
 
     """
     pkg_interp()
@@ -224,7 +227,7 @@ class User(object):
         # check pkg type
         pkg_msg_list = pkg_msg.split(Constants.DELIMITER)
         PKG_TYPE_ID_str = pkg_msg_list[0]
-        if re.compile('(\d){1-3}').match(PKG_TYPE_ID_str):
+        if re.compile('(\d){1,3}').match(PKG_TYPE_ID_str):
             PKG_TYPE_ID = int(PKG_TYPE_ID_str)
         else:
             raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
@@ -238,12 +241,14 @@ class User(object):
         if PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["HELLO_MSG"]:
             pkg_info["PKG_DESC"] = "HELLO_MSG"
             pkg_info["SRC_ID"] = pkg_msg_list[2]
-            pkg_info["NEGO_PARAMS"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            pkg_info["PUBLIC_KEY"] = pkg_msg_list[3]
+            pkg_info["NEGO_PARAMS"] = Constants.DELIMITER.join(pkg_msg_list[4:])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["ACK_CERT"]:
             pkg_info["PKG_DESC"] = "ACK_CERT"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["DST_ID"] = pkg_msg_list[3]
-            pkg_info["CERT"] = Constants.DELIMITER.join(pkg_msg_list[4:])
+            pkg_info["PUBLIC_KEY"] = pkg_msg_list[4]
+            pkg_info["CERT"] = Constants.DELIMITER.join(pkg_msg_list[5:])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DNY_MSG"]:
             pkg_info["PKG_DESC"] = "DNY_MSG"
             pkg_info["HMAC"] = pkg_msg_list[2]
