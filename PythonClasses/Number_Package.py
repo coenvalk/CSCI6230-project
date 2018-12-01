@@ -62,19 +62,6 @@ def mult_inv_mod_N(a, N):
         return Aa[1] % N_org
 
 
-def random_prime_smaller_than_k(k):
-    N = N / math.log(N) # approximate number of primes below k
-    r = np.random.randint(N)
-
-    return find_prime_smaller_than_k(k, r)
-
-def random_prime_greater_than_k(k):
-    N = N / math.log(N)
-    r = np.random.randint(N)
-
-    return find_prime_greater_than_k(k, r)
-    
-    
 def find_prime_smaller_than_k(k, n_ignore=0):
     if k < 1:
         print('Please input a positive integer greater than 1')
@@ -105,6 +92,18 @@ def find_prime_greater_than_k(k, n_ignore=0):
         k += 2
     return 1
 
+def random_prime_below_k(k):
+    N = N / math.log(N) # approximate number of primes below k
+    r = np.random.randint(N)
+
+    return find_prime_smaller_than_k(k, r)
+
+def random_prime_greater_than_k(k):
+    N = N / math.log(N)
+    r = np.random.randint(N)
+
+    return find_prime_greater_than_k(k, r)
+    
 def eular_totient_function(k):
     if k < 0:
         return None
