@@ -57,8 +57,8 @@ BAD_BEHAVIOR=bidict({
 
 
 PKG_STRUCT_DICT={
-"HELLO_MSG": "{PKG_TYPE_ID}||{NONCE}||{SRC_ID}||{NEGO_PARAMS}",
-"ACK_CERT": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{CERT}",
+"HELLO_MSG": "{PKG_TYPE_ID}||{NONCE}||{SRC_ID}||{PUBLIC_KEY}||{NEGO_PARAMS}",  # add public key here
+"ACK_CERT": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{DST_ID}||{PUBLIC_KEY}||{CERT}", # add public key here
 "DNY_MSG": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{ERR_CODE}",
 "CERT_REQ": "{PKG_TYPE_ID}||{NONCE}||{HMAC}",  # subject to changes
 "CERT_RPY": "{PKG_TYPE_ID}||{NONCE}||{HMAC}||{CERT}",
@@ -75,7 +75,7 @@ PKG_STRUCT_DICT={
 "Nonce": "{time}" # subject to changes
 }
 
-PKG_INFO_ITEMS = ['PKG_TYPE_ID', 'PKG_DESC', 'SRC_ID', 'DST_ID',
+PKG_INFO_ITEMS = ['PKG_TYPE_ID', 'PKG_DESC', 'SRC_ID', 'DST_ID', 'PUBLIC_KEY',
 'NEGO_PARAMS', 'HMAC', 'CERT', 'NONCE', 'ERR_CODE', 'KEY_INFO', 'PAYLOAD', 'CHALLG']
 
 
