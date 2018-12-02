@@ -45,6 +45,9 @@ class BG(object):
         else:
             raise Exception("n should be a blum integer")
 
+    def get_public_key(self):
+        return [self.n]
+
     def update_n(self):
         if self.p != -1 and self.q != -1:
             self.n = self.p * self.q
@@ -111,9 +114,9 @@ class BG(object):
         return m_dec
 
     def random_private_key(self):
-        # should have p, q blum integer primes, and random seed x:
-        i = np.random.randint(1000)
-        j = np.random.randint(1000)
-        p, q, N = npkg.blum_interger_generator(2**64, i, j)
-        x0 = np.random.randint(2**64)
-        return p, q, x0
+        p, q, n = npkg.blum_interger_generator(2**32, 2**10)
+        # r = np.random.randint(n)
+        # x0 = r * r % n
+        self.set_p(p)
+        self.set_q(q)
+        return p, q

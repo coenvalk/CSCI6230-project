@@ -38,7 +38,7 @@ print(pkg_msg)
 
 print("="*60)
 print(alice.public_key_str)
-bob.cur_dst_user_info["PUBLIC_KEY"]=alice.public_key_str
+bob.cur_dst_user_info["public_key_str"]=alice.public_key_str
 bob.cur_dst_user_info["user_id"] = alice.user_id
 pkg_info_inter = bob.pkg_interp(pkg_msg)
 print_pkg_info(pkg_info_inter)

@@ -260,21 +260,22 @@ def is_blum(n):
         prev_f = f
     return True
 
-def blum_interger_generator(p_q_min, p_ignore=0, q_ignore=1):
+def blum_interger_generator(p_q_min, gap=-1):
     if p_q_min < 3:
         raise ValueError("p_q_max should be greater than 3")
 
+    gap = max(0, gap)
     # p is searched by adding, q is searched by subtracting
-    def prime_with_3_mod_4(p, n_ignore):
+    def prime_with_3_mod_4(p, plus_flag=True):
         p = p + 3 - (p % 4)
-        counter = 0
         while p > 0:
-            p += 4
+            if plus_flag:
+                p += 4
+            else:
+                p -= 4
             if is_prime(p):
-                if counter >= n_ignore:
-                    return p
-                else:
-                    counter += 1
-    p = prime_with_3_mod_4(p_q_min, p_ignore)
-    q = prime_with_3_mod_4(p_q_min, q_ignore)
+                return p
+    base = np.random.randint(gap//2, gap)
+    p = prime_with_3_mod_4(p_q_min+base, True)
+    q = prime_with_3_mod_4(p_q_min-base, False )
     return p, q, p*q
