@@ -99,7 +99,7 @@ class User_Info_DB(object):
         if user_id in self.user_behave_db:
             return self.user_behave_db[user_id].check_user()
         else:
-            raise Exception("User not in DB")
+            raise True
 
     def check_ip(self, ip):
         if ip in self.ip_2_user_id:

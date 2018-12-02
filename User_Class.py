@@ -11,6 +11,7 @@ from PythonClasses.RSA_Class import RSA
 from PythonClasses.User_Info_DB_Class import User_Info_DB
 
 from PythonClasses.SHA1_Class import SHA1
+import PythonClasses.HMAC_Class as HMAC
 
 import PythonClasses.Constants as Constants
 import time
@@ -32,6 +33,10 @@ class User(object):
         self.SymmEnc_obj = None                 # currently, DES only
         self.sign_obj = RSA()
         self.public_key = self.sign_obj.get_public_key()              # public key for check
+        if isinstance(self.public_key, list):
+            self.public_key_str = str(self.public_key[0])
+            for item in self.public_key[1:]:
+                self.public_key_str += '|' + str(item)
         self.cert = None
         self.cert_update()
         # self.PKG_TYPE_ID_DICT = Constants.PKG_TYPE_ID_DICT  # Package id - package funcionality
@@ -43,6 +48,8 @@ class User(object):
         self.User_Info_DB = User_Info_DB()              # an object storing (userid: User_info )
         self.delimiter = Constants.DELIMITER            #
 
+        self.cur_dst_user_info = {'user_id':-1, 'PUBLIC_KEY':None}
+        self.cur_comm_state = -1
 
     """
     pkg_gen()
@@ -68,7 +75,7 @@ class User(object):
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
             SRC_ID=pkg_info["SRC_ID"],\
-            PUBLIC_KEY=pkg_info["PUBLIC_KEY"],\
+            PUBLIC_KEY=self.public_key_str,\
             NEGO_PARAMS=pkg_info["NEGO_PARAMS"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["ACK_CERT"]:
@@ -79,9 +86,9 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["DST_ID"], pkg_info["CERT"]], self.public_key_str),\
             DST_ID=pkg_info["DST_ID"],\
-            PUBLIC_KEY=pkg_info["PUBLIC_KEY"],\
+            PUBLIC_KEY=self.public_key_str,\
             CERT=pkg_info["CERT"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DNY_MSG"]:
@@ -91,7 +98,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.public_key_str),\
             ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_REQ"]:
@@ -100,7 +107,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"]\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["CERT_REQ"]], self.public_key_str)\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_RPY"]:
             # pkg_info["PKG_DESC"] = "CERT_RPY"
@@ -109,7 +116,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["CERT"]], self.public_key_str),\
             CERT=pkg_info["CERT"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_ERR"]:
@@ -119,7 +126,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.public_key_str),\
             ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_REQ"]:
@@ -129,7 +136,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["KEY_INFO"]], self.public_key_str),\
             KEY_INFO=pkg_info["KEY_INFO"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_RPY"]:
@@ -139,7 +146,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["KEY_INFO"]], self.public_key_str),\
             KEY_INFO=pkg_info["KEY_INFO"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_ERR"]:
@@ -149,7 +156,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.public_key_str),\
             ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["COM_MSG"]:
@@ -159,7 +166,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["PAYLOAD"]], self.public_key_str),\
             PAYLOAD=pkg_info["PAYLOAD"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["COM_ERR"]:
@@ -169,7 +176,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.public_key_str),\
             ERR_CODE=pkg_info["ERR_CODE"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_REQ"]:
@@ -178,7 +185,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"]\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"]], self.public_key_str)\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_CLG"]:
             # pkg_info["PKG_DESC"] = "DISCON_CLG"
@@ -187,7 +194,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["CHALLG"]], self.public_key_str),\
             CHALLG=pkg_info["CHALLG"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_RPY"]:
@@ -197,7 +204,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["CHALLG_RPY"]], self.public_key_str),\
             CHALLG_RPY=pkg_info["CHALLG_RPY"]\
             )
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_ERR"]:
@@ -207,7 +214,7 @@ class User(object):
             msg = Constants.PKG_STRUCT_DICT[PKG_DESC].format(\
             PKG_TYPE_ID=PKG_TYPE_ID,\
             NONCE=pkg_info["NONCE"],\
-            HMAC=pkg_info["HMAC"],\
+            HMAC=self.HMAC_gen([pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.public_key_str),\
             ERR_CODE=pkg_info["ERR_CODE"]\
             )
         else: # package type not support
@@ -245,66 +252,115 @@ class User(object):
 
         pkg_info["PKG_TYPE_ID"] = PKG_TYPE_ID
         if PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["HELLO_MSG"]:
+            if len(pkg_msg_list) < 5:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "HELLO_MSG"
             pkg_info["SRC_ID"] = pkg_msg_list[2]
             pkg_info["PUBLIC_KEY"] = pkg_msg_list[3]
             pkg_info["NEGO_PARAMS"] = Constants.DELIMITER.join(pkg_msg_list[4:])
+            self.SRC_ID_check(pkg_info["SRC_ID"])
+            self.NEGO_PARAMS_check(pkg_info["NEGO_PARAMS"])
+
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["ACK_CERT"]:
+            if len(pkg_msg_list) < 6:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "ACK_CERT"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["DST_ID"] = pkg_msg_list[3]
             pkg_info["PUBLIC_KEY"] = pkg_msg_list[4]
             pkg_info["CERT"] = Constants.DELIMITER.join(pkg_msg_list[5:])
+            self.DST_ID_check(pkg_info["DST_ID"])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["DST_ID"], pkg_info["CERT"]], pkg_info["PUBLIC_KEY"])
+
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DNY_MSG"]:
+            if len(pkg_msg_list) < 3:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "DNY_MSG"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"],pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_REQ"]:
+            if len(pkg_msg_list) < 3:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "CERT_REQ"
             pkg_info["HMAC"] = pkg_msg_list[2]
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_RPY"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "CERT_RPY"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["CERT"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["CERT"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["CERT_ERR"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "CERT_ERR"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_REQ"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "KEY_REQ"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["KEY_INFO"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["KEY_INFO"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_RPY"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "KEY_RPY"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["KEY_INFO"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["KEY_INFO"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["KEY_ERR"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "KEY_ERR"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["COM_MSG"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "COM_MSG"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["PAYLOAD"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["PAYLOAD"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["COM_ERR"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "COM_ERR"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_REQ"]:
+            if len(pkg_msg_list) < 3:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "DISCON_REQ"
             pkg_info["HMAC"] = pkg_msg_list[2]
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_CLG"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "DISCON_CLG"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["CHALLG"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["CHALLG"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_RPY"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "DISCON_RPY"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["CHALLG_RPY"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["CHALLG_RPY"]], self.cur_dst_user_info['PUBLIC_KEY'])
         elif PKG_TYPE_ID == Constants.PKG_TYPE_ID_DICT["DISCON_ERR"]:
+            if len(pkg_msg_list) < 4:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
             pkg_info["PKG_DESC"] = "DISCON_ERR"
             pkg_info["HMAC"] = pkg_msg_list[2]
             pkg_info["ERR_CODE"] = Constants.DELIMITER.join(pkg_msg_list[3:])
+            self.HMAC_check(pkg_info["HMAC"], [pkg_info["PKG_TYPE_ID"], pkg_info["NONCE"], pkg_info["ERR_CODE"]], self.cur_dst_user_info['PUBLIC_KEY'])
         else: # package type not support
             # reply error code to the sender
             raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
@@ -323,6 +379,49 @@ class User(object):
     """
     def pkg_info_init_gen(self):
         return {key:None for key in Constants.PKG_INFO_ITEMS}
+
+
+    """
+    Check whether inputs are valid
+    """
+    def SRC_ID_check(self, SRC_ID):
+        try:
+            SRC_ID = int(SRC_ID)
+            if SRC_ID > 0 and SRC_ID < Constants.USER_ID_MAX:
+                return True
+            else:
+                raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
+                return False
+        except Exception as e:
+            raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
+            return False
+
+    def HMAC_check(self, HMAC_rst, list_of_parts, key):
+        if self.HMAC_gen(list_of_parts, str(key)) != HMAC_rst:
+            raise ValueError(Constants.ERROR_CODE_DICT["INVALID_PKG"])
+            return False
+        else:
+            return True
+
+    def HMAC_gen(self, list_of_parts, key):
+        if isinstance(list_of_parts, list):
+            m = ""
+            for item in list_of_parts:
+                m += str(item)
+        else:
+            m = str(list_of_parts)
+        return HMAC.HMAC(m, str(key))
+
+    def DST_ID_check(self, DST_ID):
+        return self.SRC_ID_check(DST_ID)
+
+    def NEGO_PARAMS_check(self, NEGO_PARAMS): # only check whether it has three parts
+        nego_param_parts = NEGO_PARAMS.split("|")
+        if len(nego_param_parts) != 3:
+            raise ValueError(Constants.ERROR_CODE_DICT["WRONG_NEGO_PARAMS"])
+            return False
+        else:
+            return True
 
     """
     nonce_gen()
@@ -354,9 +453,6 @@ class User(object):
         else:
             return True, None
 
-    def gen_pub_prv_keys(self):
-        pass
-
     """
     respond_state_machine()
     =======================
@@ -368,43 +464,25 @@ class User(object):
     output:
         pkg_send: package to send
     """
-    def respond_state_machine(self, pkg_rev):
-        pkg_info = self.pkg_interp(pkg_rev)
+    def respond_state_machine(self, pkg_rev, ip):
+        pkg_info = self.pkg_interp(pkg_rev) # has some simply sanitary checks
         try:
-            if pkg_info["PKG_TYPE_ID"] is None:
-                raise Exception(Constants.ERROR_CODE_DICT["INVALID_PKG"])
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["HELLO_MSG"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["ACK_CERT"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["DNY_MSG"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["CERT_REQ"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["CERT_RPY"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["CERT_ERR"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["KEY_REQ"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["KEY_RPY"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["KEY_ERR"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["COM_MSG"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["COM_ERR"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["DISCON_REQ"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["DISCON_CLG"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["DISCON_RPY"]:
-                pass
-            elif pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT["DISCON_ERR"]:
+            if self.cur_comm_state == -1: # expect a HELLO_MSG
+                if pkg_info["PKG_TYPE_ID"] == Constants.PKG_TYPE_ID_DICT['HELLO_MSG']:
+                    # check whether in black list
+                    user_id = int(pkg_info["SRC_ID"])
+                    if self.User_Info_DB.check_user(user_id) and self.User_Info_DB.check_ip(ip): # good
+                        self.User_Info_DB.add_user(user_id=user_id, ip=ip)
+                        # extract SRC_ID, PUBLIC_KEY, NEGO_PARAMS
+                    else: # has bad records and is in jail
+                        # do nothing, until the cooldown time passes
+                        pass
+                else:
+                    raise ValueError(Constants.ERROR_CODE_DICT['INVALID_PKG'])
+            elif self.cur_comm_state == 1:
                 pass
         except Exception as e:
-            raise
+            print(e)
 
     """
     cert_update()
